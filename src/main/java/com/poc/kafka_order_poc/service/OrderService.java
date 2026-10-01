@@ -2,6 +2,8 @@ package com.poc.kafka_order_poc.service;
 
 import com.poc.kafka_order_poc.dto.CreateOrderRequest;
 import com.poc.kafka_order_poc.dto.OrderResponse;
+import com.poc.kafka_order_poc.event.OrderCreatedEvent;
+import com.poc.kafka_order_poc.kafka.OrderEventProducer;
 import com.poc.kafka_order_poc.modal.Order;
 import com.poc.kafka_order_poc.repository.OrderRepository;
 
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final OrderEventProducer orderEventProducer;
 
     public OrderResponse createOrder(CreateOrderRequest request) {
 
@@ -28,6 +31,15 @@ public class OrderService {
         order.setCreatedAt(LocalDateTime.now());
 
         Order savedOrder = orderRepository.save(order);
+
+        OrderCreatedEvent event = new OrderCreatedEvent(
+                savedOrder.getId(),
+                savedOrder.getProductId(),
+                savedOrder.getQuantity(),
+                savedOrder.getCustomerEmail(),
+                savedOrder.getCreatedAt());
+
+        orderEventProducer.publishOrderCreated(event);
 
         OrderResponse response = new OrderResponse();
 

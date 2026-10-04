@@ -34,6 +34,20 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
 
+  redis:
+    image: redis:7
+    container_name: kafka-order-redis
+    ports:
+      - "6379:6379"
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: kafka-order-redis-insight
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
+
 volumes:
   postgres_data:
   kafka_data:

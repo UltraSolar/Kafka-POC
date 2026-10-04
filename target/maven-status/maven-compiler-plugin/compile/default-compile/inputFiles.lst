@@ -1,7 +1,0 @@
-J:\Programming Folder (Study)\Java\POCs\kafka-order-poc\src\main\java\com\poc\kafka_order_poc\controller\OrderController.java
-J:\Programming Folder (Study)\Java\POCs\kafka-order-poc\src\main\java\com\poc\kafka_order_poc\dto\CreateOrderRequest.java
-J:\Programming Folder (Study)\Java\POCs\kafka-order-poc\src\main\java\com\poc\kafka_order_poc\dto\OrderResponse.java
-J:\Programming Folder (Study)\Java\POCs\kafka-order-poc\src\main\java\com\poc\kafka_order_poc\KafkaOrderPocApplication.java
-J:\Programming Folder (Study)\Java\POCs\kafka-order-poc\src\main\java\com\poc\kafka_order_poc\modal\Order.java
-J:\Programming Folder (Study)\Java\POCs\kafka-order-poc\src\main\java\com\poc\kafka_order_poc\repository\OrderRepository.java
-J:\Programming Folder (Study)\Java\POCs\kafka-order-poc\src\main\java\com\poc\kafka_order_poc\service\OrderService.java

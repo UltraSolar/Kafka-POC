@@ -3,8 +3,10 @@ package com.poc.kafka_order_poc.service;
 import com.poc.kafka_order_poc.dto.CreateOrderRequest;
 import com.poc.kafka_order_poc.dto.OrderResponse;
 import com.poc.kafka_order_poc.event.OrderCreatedEvent;
+import com.poc.kafka_order_poc.exception.OrderNotFoundException;
 import com.poc.kafka_order_poc.kafka.OrderEventProducer;
-import com.poc.kafka_order_poc.modal.Order;
+import com.poc.kafka_order_poc.mapper.OrderMapper;
+import com.poc.kafka_order_poc.model.Order;
 import com.poc.kafka_order_poc.repository.OrderRepository;
 
 import lombok.AllArgsConstructor;
@@ -12,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -19,6 +22,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderEventProducer orderEventProducer;
+    private final OrderMapper orderMapper;
 
     public OrderResponse createOrder(CreateOrderRequest request) {
 
@@ -41,32 +45,21 @@ public class OrderService {
 
         orderEventProducer.publishOrderCreated(event);
 
-        OrderResponse response = new OrderResponse();
-
-        response.setId(savedOrder.getId());
-        response.setProductId(savedOrder.getProductId());
-        response.setQuantity(savedOrder.getQuantity());
-        response.setCustomerEmail(savedOrder.getCustomerEmail());
-        response.setStatus(savedOrder.getStatus());
-        response.setCreatedAt(savedOrder.getCreatedAt());
-
-        return response;
+        return orderMapper.toResponse(savedOrder);
     }
 
     public OrderResponse getOrderById(Long id) {
 
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Order not found: " + id));
+                .orElseThrow(() -> new OrderNotFoundException(id));
 
-        OrderResponse response = new OrderResponse();
+        return orderMapper.toResponse(order);
+    }
 
-        response.setId(order.getId());
-        response.setProductId(order.getProductId());
-        response.setQuantity(order.getQuantity());
-        response.setCustomerEmail(order.getCustomerEmail());
-        response.setStatus(order.getStatus());
-        response.setCreatedAt(order.getCreatedAt());
-
-        return response;
+    public List<OrderResponse> getAllOrders() {
+        return orderRepository.findAll()
+                .stream()
+                .map(orderMapper::toResponse)
+                .toList();
     }
 }

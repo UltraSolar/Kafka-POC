@@ -1,4 +1,4 @@
-package com.poc.kafka_order_poc.modal;
+package com.poc.kafka_order_poc.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

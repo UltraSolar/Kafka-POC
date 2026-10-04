@@ -4,7 +4,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/inventory")
+@RequestMapping("/inventory")
 public class InventoryController {
 
     private final RedisTemplate<String, Integer> redisTemplate;

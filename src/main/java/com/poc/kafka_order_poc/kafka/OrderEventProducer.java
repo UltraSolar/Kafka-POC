@@ -1,6 +1,10 @@
 package com.poc.kafka_order_poc.kafka;
 
 import com.poc.kafka_order_poc.event.OrderCreatedEvent;
+
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +20,24 @@ public class OrderEventProducer {
     }
 
     public void publishOrderCreated(OrderCreatedEvent event) {
-        kafkaTemplate.send(TOPIC, event.getOrderId().toString(), event);
+
+        try {
+            kafkaTemplate
+                    .send(TOPIC, event.getOrderId().toString(), event)
+                    .get(2, TimeUnit.SECONDS);
+
+            System.out.println(
+                    "OrderCreated event published successfully");
+
+        } catch (TimeoutException e) {
+
+            throw new RuntimeException(
+                    "Kafka unavailable: event publishing timed out", e);
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Failed to publish OrderCreated event", e);
+        }
     }
 }

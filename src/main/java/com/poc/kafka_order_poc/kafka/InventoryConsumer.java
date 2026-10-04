@@ -4,6 +4,9 @@ import com.poc.kafka_order_poc.event.OrderCreatedEvent;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.kafka.annotation.RetryableTopic;
+import org.springframework.kafka.annotation.DltHandler;
+import org.springframework.kafka.annotation.BackOff;
 
 @Component
 public class InventoryConsumer {
@@ -14,10 +17,14 @@ public class InventoryConsumer {
         this.redisTemplate = redisTemplate;
     }
 
+    @RetryableTopic(attempts = "4", backOff = @BackOff(delay = 2000))
     @KafkaListener(topics = "order-events", groupId = "inventory-service")
     public void consume(OrderCreatedEvent event) {
 
         System.out.println(">>> InventoryConsumer received event: " + event);
+
+        // Simulate a failure for testing purposes
+        // throw new RuntimeException("TEST INVENTORY FAILURE");
 
         String key = "inventory:" + event.getProductId();
 
@@ -25,7 +32,7 @@ public class InventoryConsumer {
 
         // If the product is not in Redis, we can assume an initial stock of 100 for demonstration purposes.
         if (currentStock == null) {
-            currentStock = 100;
+        currentStock = 100;
         }
 
         // Update the stock based on the order quantity
@@ -35,11 +42,20 @@ public class InventoryConsumer {
         redisTemplate.opsForValue().set(key, updatedStock);
 
         System.out.println(
-                "Inventory updated: " +
-                event.getProductId() +
-                " -> " +
-                updatedStock
-        );
+        "Inventory updated: " +
+        event.getProductId() +
+        " -> " +
+        updatedStock);
     }
-    
+
+    @DltHandler
+    public void handleDlt(OrderCreatedEvent event) {
+
+        System.out.println(
+                "!!! Order moved to DLT: " +
+                        event.getOrderId() +
+                        " for product " +
+                        event.getProductId());
+    }
+
 }
